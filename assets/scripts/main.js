@@ -25,6 +25,11 @@ const router = new Router(function () {
    * This will only be two single lines
    * If you did this right, you should see just 1 recipe card rendered to the screen
    */
+  let recCardEl = document.querySelector('section.section--recipe-cards');
+  recCardEl.classList.add("shown");
+
+  let recExpEl = document.querySelector('section.section--recipe-expand');
+  recExpEl.classList.remove("shown");
 });
 
 window.addEventListener('DOMContentLoaded', init);
@@ -55,6 +60,21 @@ function initializeServiceWorker() {
    *  TODO - Part 2 Step 1
    *  Initialize the service worker set up in sw.js
    */
+
+
+  // register service worker:
+   if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js').then(function(registration) {
+        // Registration was successful
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      }, function(err) {
+        // registration failed :(
+        console.log('ServiceWorker registration failed: ', err);
+      });
+    });
+  }
+
 }
 
 /**
@@ -88,37 +108,44 @@ async function fetchRecipes() {
  * appends them to the page
  */
 function createRecipeCards() {
-  // Makes a new recipe card
-  const recipeCard = document.createElement('recipe-card');
-  // Inputs the data for the card. This is just the first recipe in the recipes array,
-  // being used as the key for the recipeData object
-  recipeCard.data = recipeData[recipes[0]];
+  // self added loop and if-else:
+  for(let i = 0; i < recipes.length; i++) {
+    // Makes a new recipe card
+    const recipeCard = document.createElement('recipe-card');
+    // Inputs the data for the card. This is just the first recipe in the recipes array,
+    // being used as the key for the recipeData object
+    recipeCard.data = recipeData[recipes[i]];
 
-  // This gets the page name of each of the arrays - which is basically
-  // just the filename minus the .json. Since this is the first element
-  // in our recipes array, the ghostCookies URL, we will receive the .json
-  // for that ghostCookies URL since it's a key in the recipeData object, and
-  // then we'll grab the 'page-name' from it - in this case it will be 'ghostCookies'
-  const page = recipeData[recipes[0]]['page-name'];
-  router.addPage(page, function() {
-    document.querySelector('.section--recipe-cards').classList.remove('shown');
-    document.querySelector('.section--recipe-expand').classList.add('shown');
-    document.querySelector('recipe-expand').data = recipeData[recipes[0]];
-  });
-  bindRecipeCard(recipeCard, page);
+    if(i > 2) {
+      recipeCard.classList.add('hidden');
+    }
 
-  document.querySelector('.recipe-cards--wrapper').appendChild(recipeCard);
+    // This gets the page name of each of the arrays - which is basically
+    // just the filename minus the .json. Since this is the first element
+    // in our recipes array, the ghostCookies URL, we will receive the .json
+    // for that ghostCookies URL since it's a key in the recipeData object, and
+    // then we'll grab the 'page-name' from it - in this case it will be 'ghostCookies'
+    const page = recipeData[recipes[i]]['page-name'];
+    router.addPage(page, function() {
+      document.querySelector('.section--recipe-cards').classList.remove('shown');
+      document.querySelector('.section--recipe-expand').classList.add('shown');
+      document.querySelector('recipe-expand').data = recipeData[recipes[i]];
+    });
+    bindRecipeCard(recipeCard, page);
 
-  /**
-   * TODO - Part 1 - Step 3
-   * Above I made an example card and added a route for the recipe at index 0 in
-   * the recipes array. First, please read through the code in this function to
-   * understand what it is doing. Then, turn this into a for loop to iterate over 
-   * all the recipes. (bonus - add the class 'hidden' to every recipe card with 
-   * an index greater  than 2 in your for loop to make show more button functional)
-   * After this step you should see multiple cards rendered like the end of the last
-   * lab
-   */
+    document.querySelector('.recipe-cards--wrapper').appendChild(recipeCard);
+
+    /**
+     * TODO - Part 1 - Step 3
+     * Above I made an example card and added a route for the recipe at index 0 in
+     * the recipes array. First, please read through the code in this function to
+     * understand what it is doing. Then, turn this into a for loop to iterate over 
+     * all the recipes. (bonus - add the class 'hidden' to every recipe card with 
+     * an index greater  than 2 in your for loop to make show more button functional)
+     * After this step you should see multiple cards rendered like the end of the last
+     * lab
+     */
+  }
 }
 
 /**
@@ -159,7 +186,7 @@ function bindShowMore() {
 function bindRecipeCard(recipeCard, pageName) {
   recipeCard.addEventListener('click', e => {
     if (e.path[0].nodeName == 'A') return;
-    router.navigate(pageName);
+    router.navigate(pageName, false);
   });
 }
 
@@ -174,6 +201,13 @@ function bindEscKey() {
    * if the escape key is pressed, use your router to navigate() to the 'home'
    * page. This will let us go back to the home page from the detailed page.
    */
+  // self-coded:
+  window.addEventListener('keydown', event => {
+    console.log("Key pressed: " + event.key);
+    if(event.key == "Escape") {
+      router.navigate("home", false); // is this true or false for statePopped (2nd arg)???
+    }
+  })
 }
 
 /**
@@ -195,4 +229,32 @@ function bindPopstate() {
    * so your navigate() function does not add your going back action to the history,
    * creating an infinite loop
    */
+  window.addEventListener('popstate', event => {
+    console.log("");
+    console.log("*****************");
+    console.log("In event listener for popstate.");
+    console.log("event for event fired: ");
+    console.log(event);
+    console.log("Current state: ");
+    console.log(event.state);
+
+    if(event.state != undefined) // && event.state["pageHash"] != "home") 
+    {
+      console.log("State of event fired for popstate: " + event.state["pageHash"]);
+      if(event.state["pageHash"] == "") // navigate to home:
+      {
+        router.navigate("home", true);
+      } else {
+
+        router.navigate(event.state["pageHash"].slice(1), true); // to get rid of hash, #, at start of name, slice from index 1 to end of string
+                                                                // (also note we don't explicitly add home to history stack, so going
+                                                               // to home only happens in the else case here, of when event.state == null,
+                                                                // so we'll never be passed just "home", of something without a # as its first
+                                                                // character, in this if.
+
+      }
+    } else {
+      router.navigate("home", true);
+    }
+  });
 }

@@ -22,6 +22,8 @@ export class Router {
    */
   constructor(homeFunc) {
     this['home'] = homeFunc;
+    // self-coded:
+    //this.navigate("home", false);
   }
 
   /**
@@ -38,6 +40,7 @@ export class Router {
      * router instance using the 'this' keyword. Substitute 'home' for the variable
      * page
      */
+    this[page] = pageFunc;
   }
 
   /**
@@ -48,6 +51,8 @@ export class Router {
    *                              'popstate' event instead of a normal card click
    */
   navigate(page, statePopped) {
+    console.log("");
+    console.log("");
     console.log(`navigate() function called, requested page: ${page}`);
     /**
      * TODO - Part 1 - Step 4
@@ -65,5 +70,47 @@ export class Router {
      *     and URL + hash to history
      *  4. Finally, call the stored function for the given page
      */
+
+    // self-coded:
+    // 1.
+    console.log("number of pages/properties of this: " + Object.keys(this).length);
+    console.log("this's keys:");
+    console.log(Object.keys(this));
+    console.log("Requested page's function value: " + this[page]);
+    let func = this[page];
+    // page doesn't exist
+    if(typeof this[page] != "function") { // note to self that checking if this[page] == undefined returns true even if the function this[page] is defined
+      console.log('ERROR note to self: requested function for page: ', page, ' does not exist');
+      return;
+    }
+
+    // 2.
+    let hash="";
+    if(page == 'home') {
+      hash = "";
+    } else {
+      hash = '#' + page;
+    }
+    
+    // was undefined for when you start on home page, as it retrieves the current state
+    // / top state in the history stack, not of the current web page you on, 
+    // so it thus starts as undefined: 
+    // let currState = History.state; // current state (state at top of history stack)
+    // so need to use something else to get the current url of the page you're actually on
+    //let currState = {pageHash: window.location.hash}; // starts with hash of home-page as empty string (automatically I guess)
+
+    // 3.
+    if(statePopped == false && window.location.hash != hash) {
+      let currState = {pageHash: hash};
+      console.log("currState: ");
+      console.log(currState);
+      console.log("hash to go to: " + hash);
+
+      console.log("pushing state with pushState().");
+      history.pushState(currState, "", hash);
+    }
+
+    // 4.
+    this[page]();
   }
 }
