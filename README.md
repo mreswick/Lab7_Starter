@@ -1,8 +1,10 @@
 # Lab 7 - Starter Code
-## Name Info:
+## Partner Info:
 Misha Reswick
 
 A15994771
+
+Laurence D'ercole
 
 
 
