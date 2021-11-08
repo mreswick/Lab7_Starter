@@ -4,6 +4,10 @@ Misha Reswick
 
 A15994771
 
+Laurence D'Ercole
+
+A15965755
+
 
 
 ## Github pages url:
