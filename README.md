@@ -8,3 +8,11 @@ A15994771
 
 ## Github pages url:
 https://mreswick.github.io/Lab7_Starter/
+
+## Images/Snapshots:
+Part-1b image (website does not load without internet):
+![part-1b](assets/images/part-1b.PNG)
+
+Part-2b image (website loads now, using service workers, without
+internet connection):
+![part-2b](assets/images/part-2b.PNG)
