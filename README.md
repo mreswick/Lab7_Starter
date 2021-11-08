@@ -16,5 +16,5 @@ Part-1b image (website does not load without internet):
 ![part-1b](screenshots/part-1b.PNG)
 
 Part-2b image (website loads now, using service workers, without
-internet connection):
+internet connection; clicking on the cards also works):
 ![part-2b](screenshots/part-2b.PNG)
